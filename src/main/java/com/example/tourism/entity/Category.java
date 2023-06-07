@@ -20,8 +20,10 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "category")
     private String category;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

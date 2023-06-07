@@ -1,6 +1,6 @@
 package com.example.tourism.service.imp;
 
-import com.example.tourism.BaseResponse;
+import com.example.tourism.payLoad.response.BaseResponse;
 import com.example.tourism.entity.Category;
 import com.example.tourism.payLoad.BaseBusiness;
 import com.example.tourism.payLoad.request.CategoryRequest;

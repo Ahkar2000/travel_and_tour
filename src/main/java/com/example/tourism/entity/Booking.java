@@ -21,18 +21,32 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "user_id")
     private Long userId;
+
     @Column(name = "package_id")
     private Long packageId;
+
     @Column(name = "group_size")
     private Integer groupSize;
+
     @Column(name = "total_price")
     private Double totalPrice;
+
     @Column(name = "schedule")
     private LocalDate schedule;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    public Booking(Long userId, Long packageId, Integer groupSize, LocalDate schedule) {
+        this.userId = userId;
+        this.packageId = packageId;
+        this.groupSize = groupSize;
+        this.schedule = schedule;
+    }
+
     public Booking(Long userId, Long packageId, Integer groupSize, Double totalPrice, LocalDate schedule) {
         this.userId = userId;
         this.packageId = packageId;

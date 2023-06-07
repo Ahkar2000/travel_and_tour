@@ -1,6 +1,6 @@
 package com.example.tourism.service.imp;
 
-import com.example.tourism.BaseResponse;
+import com.example.tourism.payLoad.response.BaseResponse;
 import com.example.tourism.entity.User;
 import com.example.tourism.payLoad.BaseBusiness;
 import com.example.tourism.payLoad.request.UserRequest;
@@ -15,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class UserServiceImp extends BaseBusiness implements UserService {
@@ -35,11 +34,8 @@ public class UserServiceImp extends BaseBusiness implements UserService {
 
     @Override
     public BaseResponse getUserById(Long id) {
-        Optional<User> userCheck = userRepository.findById(id);
-        if(userCheck.isEmpty()){
-            return new BaseResponse("404", "User Not found.");
-        }
-        User user = userCheck.get();
+        if(userExists(id) == null) return new BaseResponse("404", "User Not found.");
+        User user = userExists(id);
         return new BaseResponse("000",convertUserResponse(user));
     }
 

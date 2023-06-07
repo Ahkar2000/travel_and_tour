@@ -1,8 +1,7 @@
 package com.example.tourism.service;
 
-import com.example.tourism.BaseResponse;
+import com.example.tourism.payLoad.response.BaseResponse;
 import com.example.tourism.payLoad.request.PackageRequest;
-import com.example.tourism.payLoad.request.UserRequest;
 
 public interface PackageService {
     BaseResponse getPackages(Long categoryId, Integer pageNo, Integer pageSize, String sortDir, String sortField);
@@ -16,4 +15,6 @@ public interface PackageService {
     BaseResponse updatePackage(Long id, PackageRequest packageRequest);
 
     BaseResponse deleteById(Long id);
+
+    BaseResponse getPopularPackages();
 }

@@ -1,4 +1,4 @@
-package com.example.tourism;
+package com.example.tourism.payLoad.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,5 +19,4 @@ public class BaseResponse {
         this.result = result;
         this.time = LocalDateTime.now();
     }
-
 }

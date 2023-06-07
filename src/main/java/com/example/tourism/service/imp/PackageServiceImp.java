@@ -1,11 +1,13 @@
 package com.example.tourism.service.imp;
 
-import com.example.tourism.BaseResponse;
+import com.example.tourism.payLoad.response.BaseResponse;
 import com.example.tourism.entity.Category;
 import com.example.tourism.entity.Package;
 import com.example.tourism.payLoad.BaseBusiness;
 import com.example.tourism.payLoad.request.PackageRequest;
 import com.example.tourism.payLoad.response.PackageResponse;
+import com.example.tourism.payLoad.response.PopularPackagesResponse;
+import com.example.tourism.projection.PopularPackageProjection;
 import com.example.tourism.repository.CategoryRepository;
 import com.example.tourism.repository.PackageRepository;
 import com.example.tourism.service.PackageService;
@@ -21,6 +23,7 @@ import java.util.Optional;
 
 @Service
 public class PackageServiceImp extends BaseBusiness implements PackageService {
+
 
     @Autowired
     PackageRepository packageRepository;
@@ -58,6 +61,11 @@ public class PackageServiceImp extends BaseBusiness implements PackageService {
     }
 
     @Override
+    public BaseResponse getPopularPackages() {
+        return new BaseResponse("000",packageRepository.findPopularPackages().stream().map(this::convertPopular));
+    }
+
+    @Override
     public BaseResponse createPackage(PackageRequest packageRequest) {
         if (checkPackageDuplicate(packageRequest.getPackageName())) {
             return new BaseResponse("409", "Package already exists.");
@@ -72,11 +80,8 @@ public class PackageServiceImp extends BaseBusiness implements PackageService {
 
     @Override
     public BaseResponse getPackageById(Long id) {
-        Optional<Package> packageCheck = packageRepository.findById(id);
-        if (packageCheck.isEmpty()) {
-            return new BaseResponse("404", "Package Not found.");
-        }
-        Package apackage = packageCheck.get();
+        if (packageExists(id) == null) return new BaseResponse("404", "Package Not found.");
+        Package apackage = packageExists(id);
         return new BaseResponse("000", convertPackageResponse(apackage));
     }
 
@@ -93,12 +98,11 @@ public class PackageServiceImp extends BaseBusiness implements PackageService {
     private PackageResponse convertPackageResponse(Package apackage) {
         return new PackageResponse(apackage.getPackageName(), apackage.getDescription(), apackage.getGroupSize(), apackage.getDuration(), apackage.getPlaces(), apackage.getTransportation(), apackage.getPrice(), apackage.getCategoryId(), apackage.getCreatedAt());
     }
-
+    private PopularPackagesResponse convertPopular(PopularPackageProjection popularPackageProjection){
+        return new PopularPackagesResponse(popularPackageProjection.getPackageName(), popularPackageProjection.getBookingCount());
+    }
     public BaseResponse deleteById(Long id) {
-        Optional<Package> packageCheck = packageRepository.findById(id);
-        if (packageCheck.isEmpty()) {
-            return new BaseResponse("404", "Package Not found.");
-        }
+        if (packageExists(id) == null) return new BaseResponse("404", "Package Not found.");
         packageRepository.deleteById(id);
         return new BaseResponse("000", "Package is deleted.");
     }

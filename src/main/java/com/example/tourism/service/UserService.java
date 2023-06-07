@@ -1,7 +1,6 @@
 package com.example.tourism.service;
 
-import com.example.tourism.BaseResponse;
-import com.example.tourism.entity.User;
+import com.example.tourism.payLoad.response.BaseResponse;
 import com.example.tourism.payLoad.request.UserRequest;
 import org.springframework.stereotype.Service;
 

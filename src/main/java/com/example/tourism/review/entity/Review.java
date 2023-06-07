@@ -1,23 +1,23 @@
-package com.example.tourism.payLoad.response;
+package com.example.tourism.review.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingResponse {
+@Table(name = "review")
+public class Review {
+    private Long id;
     private Long userId;
     private Long packageId;
-    private Integer groupSize;
-    private Double totalPrice;
-    private LocalDate schedule;
+    private String review;
+    private Double rating;
     private LocalDateTime createdAt;
-
 }

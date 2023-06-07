@@ -1,6 +1,6 @@
 package com.example.tourism.controller;
 
-import com.example.tourism.BaseResponse;
+import com.example.tourism.payLoad.response.BaseResponse;
 import com.example.tourism.payLoad.request.PackageRequest;
 import com.example.tourism.repository.PackageRepository;
 import com.example.tourism.service.imp.PackageServiceImp;
@@ -28,15 +28,18 @@ public class PackageController {
         return ResponseEntity.ok(packageServiceImp.getPackages(categoryId, pageNo,pageSize,sortDir,sortField));
     }
 
-    @GetMapping("/getById/{id}")
+    @GetMapping("/get-by-id/{id}")
     public ResponseEntity<BaseResponse> getPackageById(@PathVariable("id") Long id){
         return ResponseEntity.ok(packageServiceImp.getPackageById(id));
     }
-    @GetMapping("/getByName/{packageName}")
+    @GetMapping("/get-by-name/{packageName}")
     public ResponseEntity<BaseResponse> getPackageByPackageName(@PathVariable("packageName") String packageName){
         return ResponseEntity.ok(packageServiceImp.getPackageByPackageName(packageName));
     }
-
+    @GetMapping("/popular-packages")
+    public ResponseEntity<BaseResponse> getPopularPackages(){
+        return ResponseEntity.ok(packageServiceImp.getPopularPackages());
+    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<BaseResponse> deleteById(@PathVariable("id") Long id){

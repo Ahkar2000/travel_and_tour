@@ -1,18 +1,15 @@
-package com.example.tourism.payLoad.request;
+package com.example.tourism.payLoad.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
-
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryRequest {
-    @NotBlank
-    private String category;
+public class PackageRatingResponse {
+    private String packageName;
+    private Double averageRating;
 }
