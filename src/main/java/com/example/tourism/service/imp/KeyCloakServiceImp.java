@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -48,13 +49,15 @@ public class KeyCloakServiceImp implements KeyCloakService {
     private String getRealm() {
         return env.getProperty("keycloak.realm");
     }
+    private String getClientId() {
+        return env.getProperty("keycloak.resource");
+    }
 
     @Override
     public UserRepresentation createUser(User user) {
 
         UsersResource usersResource = keycloak.realm(getRealm()).users();
 
-        log.info("user : {}", keycloak.tokenManager().getAccessToken());
         CredentialRepresentation credentialRepresentation = createPasswordCredentials();
 
         UserRepresentation newUser = new UserRepresentation();
@@ -63,35 +66,16 @@ public class KeyCloakServiceImp implements KeyCloakService {
         newUser.setEmailVerified(false);
         newUser.setCredentials(Collections.singletonList(credentialRepresentation));
 
-        List<String> roleList = new ArrayList<>();
-        roleList.add("user");
-        newUser.setRealmRoles(roleList);
-        String json;
-        try {
-            json = objectMapper.writeValueAsString(newUser);
-        } catch (JsonProcessingException e) {
-            log.warn("Cannot convert java object to json string", e);
-            json = newUser.toString();
-        }
-        log.info("New user wanna create in keycloak: {}", json);
         try {
             Response response = usersResource.create(newUser);
             log.info("Response Status: {}", response.getStatus());
 
             if (response.getStatus() == 201) {
-                UserRepresentation createdUser = keycloak.realm(getRealm()).users().search(newUser.getUsername()).get(0);
-
-                UserResource userResource = usersResource.get(createdUser.getId());
-                RoleMappingResource roleMappingResource = userResource.roles();
-
-                RoleRepresentation roleRepresentation = new RoleRepresentation();
-                roleRepresentation.setName("user");
-                roleRepresentation.setId("user");
-
-                roleMappingResource.realmLevel().add(Collections.singletonList(roleRepresentation));
-
-                log.info("User created");
-                return createdUser;
+                List<UserRepresentation> search = keycloak.realm(getRealm()).users().search(newUser.getUsername());
+                newUser.setId(search.get(0).getId());
+                addRealmRoleToUser(newUser.getUsername(), newUser.getRealmRoles().get(0));
+                log.info("Role added to user.");
+                return newUser;
             }
 
         } catch (Exception e) {
@@ -106,5 +90,33 @@ public class KeyCloakServiceImp implements KeyCloakService {
         passwordCredentials.setType(CredentialRepresentation.PASSWORD);
         passwordCredentials.setValue("1234");
         return passwordCredentials;
+    }
+    public void addRealmRoleToUser(String userName, String roleName) {
+        String clientId = keycloak
+                .realm(getRealm())
+                .clients()
+                .findByClientId(getClientId())
+                .get(0)
+                .getId();
+        String userId = keycloak
+                .realm(getRealm())
+                .users()
+                .search(userName)
+                .get(0)
+                .getId();
+        UserResource user = keycloak
+                .realm(getRealm())
+                .users()
+                .get(userId);
+        List<RoleRepresentation> roleToAdd = new LinkedList<>();
+        roleToAdd.add(keycloak
+                .realm(getRealm())
+                .clients()
+                .get(clientId)
+                .roles()
+                .get(roleName)
+                .toRepresentation()
+        );
+        user.roles().clientLevel(clientId).add(roleToAdd);
     }
 }
