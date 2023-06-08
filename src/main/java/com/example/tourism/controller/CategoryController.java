@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
 @RestController
@@ -15,6 +16,7 @@ public class CategoryController {
     @Autowired
     CategoryServiceImp categoryServiceImp;
     @PostMapping("/create")
+    @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> createCategory(@Valid @RequestBody CategoryRequest categoryRequest){
         return ResponseEntity.ok(categoryServiceImp.createCategory(categoryRequest));
     }
@@ -36,10 +38,12 @@ public class CategoryController {
         return ResponseEntity.ok(categoryServiceImp.getCategoryByName(categoryName));
     }
     @DeleteMapping("/delete/{id}")
+    @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> deleteById(@PathVariable("id") Long id){
         return ResponseEntity.ok(categoryServiceImp.deleteById(id));
     }
     @PutMapping("/update/{id}")
+    @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> updateCategory(@Valid @RequestBody CategoryRequest categoryRequest, @PathVariable("id") Long id){
         return ResponseEntity.ok(categoryServiceImp.updateCategory(id,categoryRequest));
     }

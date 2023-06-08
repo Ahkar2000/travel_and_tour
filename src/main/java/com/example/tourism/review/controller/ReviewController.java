@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
 @RestController
@@ -20,6 +21,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviewServiceImp.getAllReview());
     }
     @GetMapping("/get-by-user-id/{userId}")
+    @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> findByUserId(@PathVariable("userId") Long userId){
         return ResponseEntity.ok(reviewServiceImp.findByUserId(userId));
     }
@@ -28,6 +30,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviewServiceImp.findByPackageId(packageId));
     }
     @GetMapping("/{id}")
+    @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> findById(@PathVariable("id") Long id){
         return ResponseEntity.ok(reviewServiceImp.findReviewById(id));
     }
@@ -36,14 +39,17 @@ public class ReviewController {
         return ResponseEntity.ok(reviewServiceImp.getAverageRating());
     }
     @PostMapping("/create")
+    @RolesAllowed({"admin","user"})
     public ResponseEntity<BaseResponse> createReview(@Valid @RequestBody ReviewRequest reviewRequest){
         return ResponseEntity.ok(reviewServiceImp.createReview(reviewRequest));
     }
     @PutMapping("/update/{id}")
+    @RolesAllowed({"admin","user"})
     public ResponseEntity<BaseResponse> updateReview(@Valid @RequestBody UpdateReviewRequest updateReviewRequest, @PathVariable("id") Long id){
         return ResponseEntity.ok(reviewServiceImp.updateReview(id,updateReviewRequest));
     }
     @DeleteMapping("/delete/{id}")
+    @RolesAllowed({"admin","user"})
     public ResponseEntity<BaseResponse> deleteReview(@PathVariable("id") Long id){
         return ResponseEntity.ok(reviewServiceImp.deleteReview(id));
     }

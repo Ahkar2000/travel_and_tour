@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
 @RestController
@@ -16,6 +17,7 @@ public class BookingController {
     BookingServiceImp bookingServiceImp;
 
     @GetMapping("")
+    @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> getBookings(
             @RequestParam(name = "userId",required = false) Long userId,
             @RequestParam(name = "packageId",required = false) Long packageId,
@@ -27,22 +29,27 @@ public class BookingController {
         return ResponseEntity.ok(bookingServiceImp.getBookings(userId,packageId, pageNo,pageSize,sortDir,sortField));
     }
     @GetMapping("/get-total-sales")
+    @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> getTotalSales(){
         return ResponseEntity.ok(bookingServiceImp.getTotalPrice());
     }
     @PostMapping("/create")
+    @RolesAllowed({"admin","user"})
     public ResponseEntity<BaseResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequest){
         return ResponseEntity.ok(bookingServiceImp.createBooking(bookingRequest));
     }
     @GetMapping("/get-by-id/{id}")
+    @RolesAllowed({"admin","user"})
     public ResponseEntity<BaseResponse> getBookingById(@PathVariable("id") Long id){
         return ResponseEntity.ok(bookingServiceImp.getBookingById(id));
     }
     @PutMapping("/update/{id}")
+    @RolesAllowed({"admin","user"})
     public ResponseEntity<BaseResponse> updateBooking(@Valid @RequestBody BookingRequest bookingRequest, @PathVariable("id") Long id){
         return ResponseEntity.ok(bookingServiceImp.updateBooking(id,bookingRequest));
     }
     @DeleteMapping("/delete/{id}")
+    @RolesAllowed({"admin","user"})
     public ResponseEntity<BaseResponse> deleteById(@PathVariable("id") Long id){
         return ResponseEntity.ok(bookingServiceImp.deleteById(id));
     }

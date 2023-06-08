@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
 @RestController
@@ -17,6 +18,7 @@ public class UserController {
         this.userServiceImp = userServiceImp;
     }
     @GetMapping("")
+    @RolesAllowed("admin")
     public ResponseEntity<?> getUsers(
             @RequestParam(name = "pageNo",defaultValue = "1") Integer pageNo,
             @RequestParam(name = "pageSize",defaultValue = "10") Integer pageSize,
@@ -26,11 +28,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @RolesAllowed("admin")
     public ResponseEntity<?> getUserById(@PathVariable("id") Long id){
         return ResponseEntity.ok(userServiceImp.getUserById(id));
     }
 
     @PostMapping("/register")
+    @RolesAllowed("admin")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserRequest userRequest){
         return ResponseEntity.ok(userServiceImp.register(userRequest));
     }

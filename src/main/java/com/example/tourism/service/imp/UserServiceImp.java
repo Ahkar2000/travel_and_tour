@@ -6,8 +6,9 @@ import com.example.tourism.payLoad.BaseBusiness;
 import com.example.tourism.payLoad.request.UserRequest;
 import com.example.tourism.payLoad.response.UserResponse;
 import com.example.tourism.repository.UserRepository;
+import com.example.tourism.service.KeyCloakService;
 import com.example.tourism.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,33 +19,56 @@ import java.time.LocalDateTime;
 
 @Service
 public class UserServiceImp extends BaseBusiness implements UserService {
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    private final KeyCloakService keyCloakService;
+
+    public UserServiceImp(UserRepository userRepository, KeyCloakService keyCloakService) {
+        this.userRepository = userRepository;
+        this.keyCloakService = keyCloakService;
+    }
 
     @Override
     public BaseResponse register(UserRequest userRequest) {
-        if(checkEmailDuplicate(userRequest.getEmail())){
-            return new BaseResponse("409","Email already exists.");
+        try{
+            if(checkEmailDuplicate(userRequest.getEmail())){
+                return new BaseResponse("409","Email already exists.");
+            }
+            User user = (User) changeUserRequest(userRequest);
+            UserRepresentation keyCloakUser = keyCloakService.createUser(user);
+            if(keyCloakUser != null){
+                user.setCreatedAt(LocalDateTime.now());
+                userRepository.save(user);
+            }else{
+                return new BaseResponse("402","Can't create user.");
+            }
+            return new BaseResponse("000",convertUserResponse(user));
+        }catch (Exception e){
+            return new BaseResponse("402",e.getMessage());
         }
-        User user = (User) changeUserRequest(userRequest);
-        user.setCreatedAt(LocalDateTime.now());
-        userRepository.save(user);
-        return new BaseResponse("000",convertUserResponse(user));
     }
 
     @Override
     public BaseResponse getUserById(Long id) {
-        if(userExists(id) == null) return new BaseResponse("404", "User Not found.");
-        User user = userExists(id);
-        return new BaseResponse("000",convertUserResponse(user));
+        try{
+            if(userExists(id) == null) return new BaseResponse("404", "User Not found.");
+            User user = userExists(id);
+            return new BaseResponse("000",convertUserResponse(user));
+        }catch (Exception e){
+            return new BaseResponse("402",e.getMessage());
+        }
     }
 
     @Override
     public BaseResponse getUsers(Integer pageNo, Integer pageSize,String sortDir ,String sortField) {
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending(): Sort.by(sortField).descending();
-        Pageable pageable = PageRequest.of(pageNo-1,pageSize,sort);
-        Page<UserResponse> userResponses = userRepository.findAll(pageable).map(this::convertUserResponse);
-        return new BaseResponse("00000",userResponses);
+        try{
+            Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending(): Sort.by(sortField).descending();
+            Pageable pageable = PageRequest.of(pageNo-1,pageSize,sort);
+            Page<UserResponse> userResponses = userRepository.findAll(pageable).map(this::convertUserResponse);
+            return new BaseResponse("00000",userResponses);
+        }catch (Exception e){
+            return new BaseResponse("402",e.getMessage());
+        }
 
     }
 

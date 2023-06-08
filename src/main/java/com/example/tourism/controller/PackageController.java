@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
 @RestController
@@ -42,16 +43,19 @@ public class PackageController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> deleteById(@PathVariable("id") Long id){
         return ResponseEntity.ok(packageServiceImp.deleteById(id));
     }
 
     @PostMapping("/create")
+    @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> createPackage(@Valid @RequestBody PackageRequest packageRequest){
         return ResponseEntity.ok(packageServiceImp.createPackage(packageRequest));
     }
 
     @PutMapping("/update/{id}")
+    @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> updatePackage(@Valid @RequestBody PackageRequest packageRequest,@PathVariable("id") Long id){
         return ResponseEntity.ok(packageServiceImp.updatePackage(id,packageRequest));
     }
