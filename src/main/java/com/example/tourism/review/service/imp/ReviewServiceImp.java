@@ -15,7 +15,7 @@ import com.example.tourism.review.entity.Review;
 import com.example.tourism.review.rowmapper.RatingMapper;
 import com.example.tourism.review.rowmapper.ReviewMapper;
 import com.example.tourism.review.service.ReviewService;
-import org.hibernate.QueryException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 public class ReviewServiceImp extends BaseBusiness implements ReviewService {
     @Autowired
     PackageRepository packageRepository;
@@ -59,7 +60,7 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
             List<Review> reviews = jdbcTemplate.query(query,reviewMapper);
             if(reviews.isEmpty()) return new BaseResponse("000","No results found.");
             return new BaseResponse("000",reviews.stream().map(this::convertReview)/*.collect(Collectors.toList())*/);
-        }catch (QueryException e){
+        }catch (Exception e){
             return new BaseResponse("000",e.getMessage());
         }
     }
@@ -80,33 +81,37 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
             jdbcTemplate.update(query, reviewRequest.getUserId(),reviewRequest.getPackageId(),reviewRequest.getReview(),reviewRequest.getRating(), reviewCreate);
 
             return new BaseResponse("000",new ReviewResponse(reviewRequest.getUserId(),reviewRequest.getPackageId(),reviewRequest.getReview(),reviewRequest.getRating(),reviewCreate));
-        }catch (QueryException e){
+        }catch (Exception e){
+            log.error("Error: "+e);
             return new BaseResponse("000",e.getMessage());
         }
     }
 
     @Override
-    public BaseResponse updateReview(Long id, UpdateReviewRequest updateReviewRequest) {
+    public BaseResponse updateReview(Long userId,Long id, UpdateReviewRequest updateReviewRequest) {
         try{
             String query = "UPDATE review.review SET review = ? ,rating = ? WHERE id=?";
             ReviewResponse reviewResponse = findById(id);
             if(reviewResponse == null) return new BaseResponse("404","Review not found.");
+            if(reviewResponse.getUserId() != userId)  return new BaseResponse("409","You are not allowed.");
             jdbcTemplate.update(query,updateReviewRequest.getReview(),updateReviewRequest.getRating(),id);
             return new BaseResponse("000",new ReviewResponse(reviewResponse.getUserId(),reviewResponse.getPackageId(),updateReviewRequest.getReview(),updateReviewRequest.getRating(),reviewResponse.getCreatedAt()));
-        }catch (QueryException e){
+        }catch (Exception e){
+            log.error("Error: "+e);
             return new BaseResponse("000",e.getMessage());
         }
     }
 
     @Override
-    public BaseResponse deleteReview(Long id) {
+    public BaseResponse deleteReview(Long userId,Long id) {
         try{
             String query = "DELETE FROM review.review WHERE id=?";
             ReviewResponse reviewResponse = findById(id);
             if(reviewResponse == null) return new BaseResponse("404","Review not found.");
+            if(reviewResponse.getUserId() != userId)  return new BaseResponse("409","You are not allowed.");
             jdbcTemplate.update(query,new Object[]{id});
             return new BaseResponse("000","Review is deleted.");
-        }catch (QueryException e){
+        }catch (Exception e){
             return new BaseResponse("000",e.getMessage());
         }
     }
@@ -117,7 +122,7 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
             ReviewResponse reviewResponse = findById(id);
             if(reviewResponse == null) return new BaseResponse("404","Review not found.");
             return new BaseResponse("000",reviewResponse);
-        }catch (QueryException e){
+        }catch (Exception e){
             return new BaseResponse("000",e.getMessage());
         }
     }
@@ -128,7 +133,7 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
             List<Review> reviews = jdbcTemplate.query(query,new Object[]{packageId},reviewMapper);
             if(reviews.isEmpty()) return new BaseResponse("000","No results found.");
             return new BaseResponse("000",reviews.stream().map(this::convertReview));
-        }catch (QueryException e){
+        }catch (Exception e){
             return new BaseResponse("000",e.getMessage());
         }
     }
@@ -149,7 +154,7 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
             }
 
             return new BaseResponse("000", result);
-        } catch (QueryException e) {
+        } catch (Exception e) {
             return new BaseResponse("000", e.getMessage());
         }
     }
@@ -161,7 +166,7 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
             List<Review> reviews = jdbcTemplate.query(query,new Object[]{userId},reviewMapper);
             if(reviews.isEmpty()) return new BaseResponse("000","No results found.");
             return new BaseResponse("000",reviews.stream().map(this::convertReview));
-        }catch (QueryException e){
+        }catch (Exception e){
             return new BaseResponse("000",e.getMessage());
         }
     }

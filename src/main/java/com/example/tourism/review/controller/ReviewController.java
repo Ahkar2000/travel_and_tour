@@ -45,13 +45,13 @@ public class ReviewController {
     }
     @PutMapping("/update/{id}")
     @RolesAllowed({"admin","user"})
-    public ResponseEntity<BaseResponse> updateReview(@Valid @RequestBody UpdateReviewRequest updateReviewRequest, @PathVariable("id") Long id){
-        return ResponseEntity.ok(reviewServiceImp.updateReview(id,updateReviewRequest));
+    public ResponseEntity<BaseResponse> updateReview(@Valid @RequestBody UpdateReviewRequest updateReviewRequest, @PathVariable("id") Long id,@RequestParam("userId") Long userId){
+        return ResponseEntity.ok(reviewServiceImp.updateReview(userId,id,updateReviewRequest));
     }
     @DeleteMapping("/delete/{id}")
     @RolesAllowed({"admin","user"})
-    public ResponseEntity<BaseResponse> deleteReview(@PathVariable("id") Long id){
-        return ResponseEntity.ok(reviewServiceImp.deleteReview(id));
+    public ResponseEntity<BaseResponse> deleteReview(@PathVariable("id") Long id,@RequestParam("userId") Long userId){
+        return ResponseEntity.ok(reviewServiceImp.deleteReview(userId,id));
     }
 
 }

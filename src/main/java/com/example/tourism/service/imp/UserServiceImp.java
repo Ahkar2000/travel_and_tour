@@ -5,6 +5,7 @@ import com.example.tourism.entity.User;
 import com.example.tourism.payLoad.BaseBusiness;
 import com.example.tourism.payLoad.request.UserRequest;
 import com.example.tourism.payLoad.response.UserResponse;
+import com.example.tourism.payLoad.response.WalletResponse;
 import com.example.tourism.repository.UserRepository;
 import com.example.tourism.service.KeyCloakService;
 import com.example.tourism.service.UserService;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 
@@ -23,9 +25,12 @@ public class UserServiceImp extends BaseBusiness implements UserService {
 
     private final KeyCloakService keyCloakService;
 
-    public UserServiceImp(UserRepository userRepository, KeyCloakService keyCloakService) {
+    private final RestTemplate restTemplate;
+
+    public UserServiceImp(UserRepository userRepository, KeyCloakService keyCloakService, RestTemplate restTemplate) {
         this.userRepository = userRepository;
         this.keyCloakService = keyCloakService;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -34,8 +39,8 @@ public class UserServiceImp extends BaseBusiness implements UserService {
             if(checkEmailDuplicate(userRequest.getEmail())){
                 return new BaseResponse("409","Email already exists.");
             }
+            UserRepresentation keyCloakUser = keyCloakService.createUser(userRequest);
             User user = (User) changeUserRequest(userRequest);
-            UserRepresentation keyCloakUser = keyCloakService.createUser(user);
             if(keyCloakUser != null){
                 user.setCreatedAt(LocalDateTime.now());
                 userRepository.save(user);
@@ -75,5 +80,4 @@ public class UserServiceImp extends BaseBusiness implements UserService {
     private UserResponse convertUserResponse(User user){
         return new UserResponse(user.getName(), user.getEmail(), user.getAddress(),user.getPhone(),user.getCreatedAt());
     }
-
 }

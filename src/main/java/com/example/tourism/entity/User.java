@@ -27,9 +27,6 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "password")
-    private String password;
-
     @Column(name = "address")
     private String address;
 
@@ -39,10 +36,9 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public User(String name, String email, String password, String address, String phone) {
+    public User(String name, String email, String address, String phone) {
         this.name = name;
         this.email = email;
-        this.password = password;
         this.address = address;
         this.phone = phone;
     }

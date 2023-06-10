@@ -7,8 +7,8 @@ import com.example.tourism.payLoad.request.UpdateReviewRequest;
 public interface ReviewService {
     BaseResponse getAllReview();
     BaseResponse createReview(ReviewRequest reviewRequest);
-    BaseResponse updateReview(Long id, UpdateReviewRequest updateReviewRequest);
-    BaseResponse deleteReview(Long id);
+    BaseResponse updateReview(Long userId,Long id, UpdateReviewRequest updateReviewRequest);
+    BaseResponse deleteReview(Long userId,Long id);
     BaseResponse findReviewById(Long id);
     BaseResponse findByUserId(Long userId);
     BaseResponse findByPackageId(Long packageId);

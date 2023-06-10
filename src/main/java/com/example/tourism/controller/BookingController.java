@@ -33,24 +33,29 @@ public class BookingController {
     public ResponseEntity<BaseResponse> getTotalSales(){
         return ResponseEntity.ok(bookingServiceImp.getTotalPrice());
     }
+    @GetMapping("/admin/get-by-id/{id}")
+    @RolesAllowed("admin")
+    public ResponseEntity<BaseResponse> getBookingById(@PathVariable("id") Long id){
+        return ResponseEntity.ok(bookingServiceImp.getBookingById(id));
+    }
     @PostMapping("/create")
-    @RolesAllowed({"admin","user"})
+    @RolesAllowed("user")
     public ResponseEntity<BaseResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequest){
         return ResponseEntity.ok(bookingServiceImp.createBooking(bookingRequest));
     }
     @GetMapping("/get-by-id/{id}")
-    @RolesAllowed({"admin","user"})
-    public ResponseEntity<BaseResponse> getBookingById(@PathVariable("id") Long id){
-        return ResponseEntity.ok(bookingServiceImp.getBookingById(id));
+    @RolesAllowed("user")
+    public ResponseEntity<BaseResponse> getBookingById(@RequestParam("userId") Long userId,@PathVariable("id") Long id){
+        return ResponseEntity.ok(bookingServiceImp.getBookingById(userId,id));
     }
     @PutMapping("/update/{id}")
-    @RolesAllowed({"admin","user"})
+    @RolesAllowed("user")
     public ResponseEntity<BaseResponse> updateBooking(@Valid @RequestBody BookingRequest bookingRequest, @PathVariable("id") Long id){
         return ResponseEntity.ok(bookingServiceImp.updateBooking(id,bookingRequest));
     }
     @DeleteMapping("/delete/{id}")
-    @RolesAllowed({"admin","user"})
-    public ResponseEntity<BaseResponse> deleteById(@PathVariable("id") Long id){
-        return ResponseEntity.ok(bookingServiceImp.deleteById(id));
+    @RolesAllowed("user")
+    public ResponseEntity<BaseResponse> deleteById(@RequestParam("userId") Long userId,@PathVariable("id") Long id){
+        return ResponseEntity.ok(bookingServiceImp.deleteById(userId,id));
     }
 }

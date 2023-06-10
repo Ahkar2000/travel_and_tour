@@ -11,6 +11,7 @@ import com.example.tourism.projection.PopularPackageProjection;
 import com.example.tourism.repository.CategoryRepository;
 import com.example.tourism.repository.PackageRepository;
 import com.example.tourism.service.PackageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class PackageServiceImp extends BaseBusiness implements PackageService {
 
 
@@ -32,67 +34,97 @@ public class PackageServiceImp extends BaseBusiness implements PackageService {
 
     @Override
     public BaseResponse updatePackage(Long id, PackageRequest packageRequest) {
-        Package packageToUpdate = packageRepository.findById(id).orElse(null);
-        if (packageToUpdate == null) return new BaseResponse("404", "Package not found.");
-        if (!packageToUpdate.getPackageName().equals(packageRequest.getPackageName())) {
-            if (checkPackageDuplicate(packageRequest.getPackageName())) {
-                return new BaseResponse("409", "Package already exists.");
+        try {
+            Package packageToUpdate = packageRepository.findById(id).orElse(null);
+            if (packageToUpdate == null) return new BaseResponse("404", "Package not found.");
+            if (!packageToUpdate.getPackageName().equals(packageRequest.getPackageName())) {
+                if (checkPackageDuplicate(packageRequest.getPackageName())) {
+                    return new BaseResponse("409", "Package already exists.");
+                }
             }
+            Category category = categoryRepository.findById(packageRequest.getCategoryId()).orElse(null);
+            if(category == null)return new BaseResponse("404", "Category does not exist.");
+            packageToUpdate.setPackageName(packageRequest.getPackageName());
+            packageToUpdate.setDescription(packageRequest.getDescription());
+            packageToUpdate.setPlaces(packageRequest.getPlaces());
+            packageToUpdate.setDuration(packageRequest.getDuration());
+            packageToUpdate.setGroupSize(packageRequest.getGroupSize());
+            packageToUpdate.setPrice(packageRequest.getPrice());
+            packageToUpdate.setTransportation(packageRequest.getTransportation());
+            packageRepository.save(packageToUpdate);
+            return new BaseResponse("000", convertPackageResponse(packageToUpdate));
+        }catch(Exception e){
+            log.info("error : "+e.getMessage());
+            return new BaseResponse("001",e.getMessage());
         }
-        Category category = categoryRepository.findById(packageRequest.getCategoryId()).orElse(null);
-        if(category == null)return new BaseResponse("404", "Category does not exist.");
-        packageToUpdate.setPackageName(packageRequest.getPackageName());
-        packageToUpdate.setDescription(packageRequest.getDescription());
-        packageToUpdate.setPlaces(packageRequest.getPlaces());
-        packageToUpdate.setDuration(packageRequest.getDuration());
-        packageToUpdate.setGroupSize(packageRequest.getGroupSize());
-        packageToUpdate.setPrice(packageRequest.getPrice());
-        packageToUpdate.setTransportation(packageRequest.getTransportation());
-        packageRepository.save(packageToUpdate);
-        return new BaseResponse("000", convertPackageResponse(packageToUpdate));
     }
 
     @Override
     public BaseResponse getPackages(Long categoryId, Integer pageNo, Integer pageSize, String sortDir, String sortField) {
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
-        Page<PackageResponse> packageResponses = packageRepository.getPackagesByCategory(categoryId, pageable).map(this::convertPackageResponse);
-        return new BaseResponse("00000", packageResponses);
+        try{
+            Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+            Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
+            Page<PackageResponse> packageResponses = packageRepository.getPackagesByCategory(categoryId, pageable).map(this::convertPackageResponse);
+            return new BaseResponse("00000", packageResponses);
+        }catch(Exception e){
+            log.info("error : "+e.getMessage());
+            return new BaseResponse("001",e.getMessage());
+        }
     }
 
     @Override
     public BaseResponse getPopularPackages() {
-        return new BaseResponse("000",packageRepository.findPopularPackages().stream().map(this::convertPopular));
+        try{
+            return new BaseResponse("000",packageRepository.findPopularPackages().stream().map(this::convertPopular));
+        }catch(Exception e){
+            log.info("error : "+e.getMessage());
+            return new BaseResponse("001",e.getMessage());
+        }
     }
 
     @Override
     public BaseResponse createPackage(PackageRequest packageRequest) {
-        if (checkPackageDuplicate(packageRequest.getPackageName())) {
-            return new BaseResponse("409", "Package already exists.");
+        try{
+            if (checkPackageDuplicate(packageRequest.getPackageName())) {
+                return new BaseResponse("409", "Package already exists.");
+            }
+            Optional<Category> categoryOptional = categoryRepository.findById(packageRequest.getCategoryId());
+            if(categoryOptional.isEmpty())return new BaseResponse("404", "Category does not exist.");
+            Package aPackage = (Package) changePackageRequest(packageRequest);
+            aPackage.setCreatedAt(LocalDateTime.now());
+            packageRepository.save(aPackage);
+            return new BaseResponse("000", convertPackageResponse(aPackage));
+        }catch(Exception e){
+            log.info("error : "+e.getMessage());
+            return new BaseResponse("001",e.getMessage());
         }
-        Optional<Category> categoryOptional = categoryRepository.findById(packageRequest.getCategoryId());
-        if(categoryOptional.isEmpty())return new BaseResponse("404", "Category does not exist.");
-        Package aPackage = (Package) changePackageRequest(packageRequest);
-        aPackage.setCreatedAt(LocalDateTime.now());
-        packageRepository.save(aPackage);
-        return new BaseResponse("000", convertPackageResponse(aPackage));
     }
 
     @Override
     public BaseResponse getPackageById(Long id) {
-        if (packageExists(id) == null) return new BaseResponse("404", "Package Not found.");
-        Package apackage = packageExists(id);
-        return new BaseResponse("000", convertPackageResponse(apackage));
+        try {
+            if (packageExists(id) == null) return new BaseResponse("404", "Package Not found.");
+            Package apackage = packageExists(id);
+            return new BaseResponse("000", convertPackageResponse(apackage));
+        }catch(Exception e){
+            log.info("error : "+e.getMessage());
+            return new BaseResponse("001",e.getMessage());
+        }
     }
 
     @Override
     public BaseResponse getPackageByPackageName(String packageName) {
-        Optional<Package> packageCheck = packageRepository.findByPackageName(packageName);
-        if (packageCheck.isEmpty()) {
-            return new BaseResponse("404", "Package Not found.");
+        try{
+            Optional<Package> packageCheck = packageRepository.findByPackageName(packageName);
+            if (packageCheck.isEmpty()) {
+                return new BaseResponse("404", "Package Not found.");
+            }
+            Package apackage = packageCheck.get();
+            return new BaseResponse("000", convertPackageResponse(apackage));
+        }catch(Exception e){
+            log.info("error : "+e.getMessage());
+            return new BaseResponse("001",e.getMessage());
         }
-        Package apackage = packageCheck.get();
-        return new BaseResponse("000", convertPackageResponse(apackage));
     }
 
     private PackageResponse convertPackageResponse(Package apackage) {
@@ -102,8 +134,13 @@ public class PackageServiceImp extends BaseBusiness implements PackageService {
         return new PopularPackagesResponse(popularPackageProjection.getPackageName(), popularPackageProjection.getBookingCount());
     }
     public BaseResponse deleteById(Long id) {
-        if (packageExists(id) == null) return new BaseResponse("404", "Package Not found.");
-        packageRepository.deleteById(id);
-        return new BaseResponse("000", "Package is deleted.");
+        try{
+            if (packageExists(id) == null) return new BaseResponse("404", "Package Not found.");
+            packageRepository.deleteById(id);
+            return new BaseResponse("000", "Package is deleted.");
+        }catch(Exception e){
+            log.info("error : "+e.getMessage());
+            return new BaseResponse("001",e.getMessage());
+        }
     }
 }

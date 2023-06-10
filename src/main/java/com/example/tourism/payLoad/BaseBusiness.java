@@ -28,7 +28,7 @@ public abstract class BaseBusiness {
     BookingRepository bookingRepository;
     public Object changeUserRequest(Object object){
         UserRequest userRequest = (UserRequest) object;
-        return new User(userRequest.getName(),userRequest.getEmail(), userRequest.getPassword(), userRequest.getAddress(), userRequest.getPhone());
+        return new User(userRequest.getName(),userRequest.getEmail(), userRequest.getAddress(), userRequest.getPhone());
     }
     public Object changePackageRequest(Object object){
         PackageRequest packageRequest = (PackageRequest) object;

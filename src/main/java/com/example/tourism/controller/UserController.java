@@ -34,7 +34,6 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    @RolesAllowed("admin")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserRequest userRequest){
         return ResponseEntity.ok(userServiceImp.register(userRequest));
     }

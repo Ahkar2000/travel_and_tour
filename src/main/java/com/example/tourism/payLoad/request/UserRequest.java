@@ -3,6 +3,7 @@ package com.example.tourism.payLoad.request;
 import lombok.*;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 @Getter
