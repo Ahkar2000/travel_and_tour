@@ -47,10 +47,12 @@ public class KeyCloakServiceImp implements KeyCloakService {
         newUser.setEmailVerified(false);
         newUser.setCredentials(Collections.singletonList(credentialRepresentation));
         newUser.setEnabled(true);
+
         List<String> userIdList = new ArrayList<>();
         userIdList.add(String.valueOf(id));
         Map<String, List<String>> userId = new HashMap<>();
         userId.put("userId",userIdList);
+
         newUser.setAttributes(userId);
         try {
             Response response = usersResource.create(newUser);
@@ -90,10 +92,7 @@ public class KeyCloakServiceImp implements KeyCloakService {
 
     public void addRoleToUser(String userId, String roleName) {
         String client_id = keycloak.realm(realm).clients().findByClientId(clientId).get(0).getId();
-        UserResource userResource = keycloak
-                .realm(realm)
-                .users()
-                .get(userId);
+        UserResource userResource = keycloak.realm(realm).users().get(userId);
 
         List<RoleRepresentation> roleRepresentationList = new ArrayList<>();
         List<RoleRepresentation> roleToAdd = new LinkedList<>();
