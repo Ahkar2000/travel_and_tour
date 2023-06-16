@@ -13,9 +13,10 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateReviewRequest {
+    @Min(1)
+    private Long userId;
     @NotBlank
     private String review;
-
     @Min(1)
     private Double rating;
 }

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 
 @Service
@@ -39,14 +40,10 @@ public class UserServiceImp extends BaseBusiness implements UserService {
             if(checkEmailDuplicate(userRequest.getEmail())){
                 return new BaseResponse("409","Email already exists.");
             }
-            UserRepresentation keyCloakUser = keyCloakService.createUser(userRequest);
             User user = (User) changeUserRequest(userRequest);
-            if(keyCloakUser != null){
-                user.setCreatedAt(LocalDateTime.now());
-                userRepository.save(user);
-            }else{
-                return new BaseResponse("402","Can't create user.");
-            }
+            user.setCreatedAt(LocalDateTime.now());
+            user = userRepository.save(user);
+            keyCloakService.createUser(userRequest, user.getId());
             return new BaseResponse("000",convertUserResponse(user));
         }catch (Exception e){
             return new BaseResponse("402",e.getMessage());

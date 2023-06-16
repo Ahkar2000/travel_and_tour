@@ -9,6 +9,4 @@ public interface UserService {
     BaseResponse getUsers(Integer pageNo, Integer pageSize,String sortDir, String sortField);
     BaseResponse register(UserRequest userRequest);
     BaseResponse getUserById(Long id);
-
-
 }

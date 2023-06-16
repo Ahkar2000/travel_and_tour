@@ -5,13 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WalletResponse {
+public class WalletHistoryResponse {
     private Long userId;
-
-    private Double amount;
-
+    private Long walletId;
+    private Double beforeAmount;
+    private Double afterAmount;
+    private String reason;
     private LocalDateTime createdAt;
 }

@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking,Long> {
     @Query(value = "SELECT * FROM booking AS b WHERE (:userId IS NULL OR b.user_id=:userId) AND (:packageId IS NULL OR b.package_id=:packageId) ORDER BY b.id",

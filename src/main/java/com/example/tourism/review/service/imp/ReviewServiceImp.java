@@ -15,6 +15,7 @@ import com.example.tourism.review.entity.Review;
 import com.example.tourism.review.rowmapper.RatingMapper;
 import com.example.tourism.review.rowmapper.ReviewMapper;
 import com.example.tourism.review.service.ReviewService;
+import com.example.tourism.service.KeyCloakService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -23,6 +24,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,6 +37,8 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
     BookingRepository bookingRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    KeyCloakService keyCloakService;
 
     private final JdbcTemplate jdbcTemplate;
     private final AppConfig appConfig;
@@ -66,7 +70,8 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
     }
 
     @Override
-    public BaseResponse createReview(ReviewRequest reviewRequest) {
+    public BaseResponse createReview(ReviewRequest reviewRequest, Principal principal) {
+        if (!String.valueOf(reviewRequest.getUserId()).equals(keyCloakService.getKeycloakUserID(principal))) return new BaseResponse("403","You are not allowed.");
         try{
             String query = "INSERT INTO review.review (user_id,package_id,review,rating,created_at) VALUES (?,?,?,?,?)";
 
@@ -88,12 +93,13 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
     }
 
     @Override
-    public BaseResponse updateReview(Long userId,Long id, UpdateReviewRequest updateReviewRequest) {
+    public BaseResponse updateReview(Long id, UpdateReviewRequest updateReviewRequest, Principal principal) {
+        if (!String.valueOf(updateReviewRequest.getUserId()).equals(keyCloakService.getKeycloakUserID(principal))) return new BaseResponse("403","You are not allowed.");
         try{
             String query = "UPDATE review.review SET review = ? ,rating = ? WHERE id=?";
             ReviewResponse reviewResponse = findById(id);
             if(reviewResponse == null) return new BaseResponse("404","Review not found.");
-            if(reviewResponse.getUserId() != userId)  return new BaseResponse("409","You are not allowed.");
+            if(reviewResponse.getUserId() != updateReviewRequest.getUserId())  return new BaseResponse("409","You are not allowed.");
             jdbcTemplate.update(query,updateReviewRequest.getReview(),updateReviewRequest.getRating(),id);
             return new BaseResponse("000",new ReviewResponse(reviewResponse.getUserId(),reviewResponse.getPackageId(),updateReviewRequest.getReview(),updateReviewRequest.getRating(),reviewResponse.getCreatedAt()));
         }catch (Exception e){
@@ -103,7 +109,8 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
     }
 
     @Override
-    public BaseResponse deleteReview(Long userId,Long id) {
+    public BaseResponse deleteReview(Long userId,Long id, Principal principal) {
+        if (!String.valueOf(userId).equals(keyCloakService.getKeycloakUserID(principal))) return new BaseResponse("403","You are not allowed.");
         try{
             String query = "DELETE FROM review.review WHERE id=?";
             ReviewResponse reviewResponse = findById(id);

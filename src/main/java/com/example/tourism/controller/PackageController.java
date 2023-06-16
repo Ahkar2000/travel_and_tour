@@ -3,7 +3,7 @@ package com.example.tourism.controller;
 import com.example.tourism.payLoad.response.BaseResponse;
 import com.example.tourism.payLoad.request.PackageRequest;
 import com.example.tourism.repository.PackageRepository;
-import com.example.tourism.service.imp.PackageServiceImp;
+import com.example.tourism.service.PackageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,7 @@ import javax.validation.Valid;
 @RequestMapping("/packages")
 public class PackageController {
     @Autowired
-    PackageServiceImp packageServiceImp;
+    PackageService packageService;
     @Autowired
     PackageRepository packageRepository;
 
@@ -26,37 +26,37 @@ public class PackageController {
             @RequestParam(name = "pageSize",defaultValue = "10") Integer pageSize,
             @RequestParam(name = "sortDir",defaultValue = "ASC") String sortDir,
             @RequestParam(name = "sortField",defaultValue = "id") String sortField){
-        return ResponseEntity.ok(packageServiceImp.getPackages(categoryId, pageNo,pageSize,sortDir,sortField));
+        return ResponseEntity.ok(packageService.getPackages(categoryId, pageNo,pageSize,sortDir,sortField));
     }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseEntity<BaseResponse> getPackageById(@PathVariable("id") Long id){
-        return ResponseEntity.ok(packageServiceImp.getPackageById(id));
+        return ResponseEntity.ok(packageService.getPackageById(id));
     }
     @GetMapping("/get-by-name/{packageName}")
     public ResponseEntity<BaseResponse> getPackageByPackageName(@PathVariable("packageName") String packageName){
-        return ResponseEntity.ok(packageServiceImp.getPackageByPackageName(packageName));
+        return ResponseEntity.ok(packageService.getPackageByPackageName(packageName));
     }
     @GetMapping("/popular-packages")
     public ResponseEntity<BaseResponse> getPopularPackages(){
-        return ResponseEntity.ok(packageServiceImp.getPopularPackages());
+        return ResponseEntity.ok(packageService.getPopularPackages());
     }
 
     @DeleteMapping("/delete/{id}")
     @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> deleteById(@PathVariable("id") Long id){
-        return ResponseEntity.ok(packageServiceImp.deleteById(id));
+        return ResponseEntity.ok(packageService.deleteById(id));
     }
 
     @PostMapping("/create")
     @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> createPackage(@Valid @RequestBody PackageRequest packageRequest){
-        return ResponseEntity.ok(packageServiceImp.createPackage(packageRequest));
+        return ResponseEntity.ok(packageService.createPackage(packageRequest));
     }
 
     @PutMapping("/update/{id}")
     @RolesAllowed("admin")
     public ResponseEntity<BaseResponse> updatePackage(@Valid @RequestBody PackageRequest packageRequest,@PathVariable("id") Long id){
-        return ResponseEntity.ok(packageServiceImp.updatePackage(id,packageRequest));
+        return ResponseEntity.ok(packageService.updatePackage(id,packageRequest));
     }
 }

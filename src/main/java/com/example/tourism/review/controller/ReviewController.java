@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/reviews")
@@ -40,18 +41,18 @@ public class ReviewController {
     }
     @PostMapping("/create")
     @RolesAllowed({"admin","user"})
-    public ResponseEntity<BaseResponse> createReview(@Valid @RequestBody ReviewRequest reviewRequest){
-        return ResponseEntity.ok(reviewServiceImp.createReview(reviewRequest));
+    public ResponseEntity<BaseResponse> createReview(@Valid @RequestBody ReviewRequest reviewRequest, Principal principal){
+        return ResponseEntity.ok(reviewServiceImp.createReview(reviewRequest,principal));
     }
     @PutMapping("/update/{id}")
     @RolesAllowed({"admin","user"})
-    public ResponseEntity<BaseResponse> updateReview(@Valid @RequestBody UpdateReviewRequest updateReviewRequest, @PathVariable("id") Long id,@RequestParam("userId") Long userId){
-        return ResponseEntity.ok(reviewServiceImp.updateReview(userId,id,updateReviewRequest));
+    public ResponseEntity<BaseResponse> updateReview(@Valid @RequestBody UpdateReviewRequest updateReviewRequest, @PathVariable("id") Long id,Principal principal){
+        return ResponseEntity.ok(reviewServiceImp.updateReview(id,updateReviewRequest,principal));
     }
     @DeleteMapping("/delete/{id}")
     @RolesAllowed({"admin","user"})
-    public ResponseEntity<BaseResponse> deleteReview(@PathVariable("id") Long id,@RequestParam("userId") Long userId){
-        return ResponseEntity.ok(reviewServiceImp.deleteReview(userId,id));
+    public ResponseEntity<BaseResponse> deleteReview(@PathVariable("id") Long id,@RequestParam("userId") Long userId, Principal principal){
+        return ResponseEntity.ok(reviewServiceImp.deleteReview(userId,id,principal));
     }
 
 }

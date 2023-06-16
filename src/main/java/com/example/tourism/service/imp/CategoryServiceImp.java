@@ -87,12 +87,13 @@ public class CategoryServiceImp extends BaseBusiness implements CategoryService 
         try{
             Category categoryToUpdate = categoryRepository.findById(id).orElse(null);
             if (categoryToUpdate == null ) return new BaseResponse("404","Category not found.");
-            if (!categoryToUpdate.getCategory().equals(categoryRequest.getCategory())) {
+            if (!categoryToUpdate.getCategory().equalsIgnoreCase(categoryRequest.getCategory())) {
                 if (checkCategoryDuplicate(categoryRequest.getCategory())) {
-                    return new BaseResponse("409", "Package already exists.");
+                    return new BaseResponse("409", "Category already exists.");
                 }
             }
             categoryToUpdate.setCategory(categoryRequest.getCategory());
+            categoryRepository.save(categoryToUpdate);
             return new BaseResponse("000",convertCategoryResponse(categoryToUpdate));
         }catch(Exception e){
             log.info("error : "+e.getMessage());

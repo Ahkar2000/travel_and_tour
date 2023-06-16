@@ -1,6 +1,7 @@
 package com.example.tourism.controller;
 
 import com.example.tourism.payLoad.request.UserRequest;
+import com.example.tourism.service.UserService;
 import com.example.tourism.service.imp.UserServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +13,10 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserServiceImp userServiceImp;
+    private final UserService userService;
     @Autowired
-    public UserController(UserServiceImp userServiceImp) {
-        this.userServiceImp = userServiceImp;
+    public UserController(UserServiceImp userService) {
+        this.userService = userService;
     }
     @GetMapping("")
     @RolesAllowed("admin")
@@ -24,17 +25,17 @@ public class UserController {
             @RequestParam(name = "pageSize",defaultValue = "10") Integer pageSize,
             @RequestParam(name = "sortDir",defaultValue = "ASC") String sortDir,
             @RequestParam(name = "sortField",defaultValue = "id") String sortField){
-        return ResponseEntity.ok(userServiceImp.getUsers(pageNo,pageSize,sortDir,sortField));
+        return ResponseEntity.ok(userService.getUsers(pageNo,pageSize,sortDir,sortField));
     }
 
     @GetMapping("/{id}")
     @RolesAllowed("admin")
     public ResponseEntity<?> getUserById(@PathVariable("id") Long id){
-        return ResponseEntity.ok(userServiceImp.getUserById(id));
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserRequest userRequest){
-        return ResponseEntity.ok(userServiceImp.register(userRequest));
+        return ResponseEntity.ok(userService.register(userRequest));
     }
 }

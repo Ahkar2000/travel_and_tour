@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WalletRequest {
     private Long userId;
-
     private Double amount;
 
 }

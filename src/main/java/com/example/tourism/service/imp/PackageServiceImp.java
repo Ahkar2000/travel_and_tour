@@ -37,7 +37,7 @@ public class PackageServiceImp extends BaseBusiness implements PackageService {
         try {
             Package packageToUpdate = packageRepository.findById(id).orElse(null);
             if (packageToUpdate == null) return new BaseResponse("404", "Package not found.");
-            if (!packageToUpdate.getPackageName().equals(packageRequest.getPackageName())) {
+            if (!packageToUpdate.getPackageName().equalsIgnoreCase(packageRequest.getPackageName())) {
                 if (checkPackageDuplicate(packageRequest.getPackageName())) {
                     return new BaseResponse("409", "Package already exists.");
                 }
@@ -131,7 +131,7 @@ public class PackageServiceImp extends BaseBusiness implements PackageService {
         return new PackageResponse(apackage.getPackageName(), apackage.getDescription(), apackage.getGroupSize(), apackage.getDuration(), apackage.getPlaces(), apackage.getTransportation(), apackage.getPrice(), apackage.getCategoryId(), apackage.getCreatedAt());
     }
     private PopularPackagesResponse convertPopular(PopularPackageProjection popularPackageProjection){
-        return new PopularPackagesResponse(popularPackageProjection.getPackageName(), popularPackageProjection.getBookingCount());
+        return new PopularPackagesResponse(popularPackageProjection.getPackageName(), popularPackageProjection.getBookingCount(                                                                                                                               ));
     }
     public BaseResponse deleteById(Long id) {
         try{
