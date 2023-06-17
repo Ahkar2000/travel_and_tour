@@ -7,4 +7,5 @@ import java.security.Principal;
 public interface WalletHistoryService {
     BaseResponse getAllHistory();
     BaseResponse getHistoryByUserId(Long userId, Principal principal);
+    BaseResponse getHistoryByUserId(Long userId);
 }

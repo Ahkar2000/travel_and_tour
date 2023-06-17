@@ -63,7 +63,7 @@ public class ReviewServiceImp extends BaseBusiness implements ReviewService {
             String query = "SELECT * FROM review.review ORDER BY id ASC";
             List<Review> reviews = jdbcTemplate.query(query,reviewMapper);
             if(reviews.isEmpty()) return new BaseResponse("000","No results found.");
-            return new BaseResponse("000",reviews.stream().map(this::convertReview)/*.collect(Collectors.toList())*/);
+            return new BaseResponse("000",reviews.stream().map(this::convertReview));
         }catch (Exception e){
             return new BaseResponse("000",e.getMessage());
         }

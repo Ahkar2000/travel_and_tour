@@ -32,7 +32,20 @@ public class WalletHistoryServiceImp implements WalletHistoryService {
 
     @Override
     public BaseResponse getHistoryByUserId(Long userId, Principal principal) {
-        if (!String.valueOf(userId).equals(keyCloakService.getKeycloakUserID(principal))) return new BaseResponse("403","You are not allowed.");
+        if (!String.valueOf(userId).equals(keyCloakService.getKeycloakUserID(principal)))
+            return new BaseResponse("403","You are not allowed.");
+        try {
+            String url = baseUrl+"/get-by-userId/{userid}";
+            WalletHistoryResponse[] walletHistoryResponse = restTemplate.getForObject(url,WalletHistoryResponse[].class,userId);
+            return new BaseResponse("000",walletHistoryResponse);
+        }catch(Exception e){
+            log.info("error : "+e.getMessage());
+            return new BaseResponse("001",e.getMessage());
+        }
+    }
+
+    @Override
+    public BaseResponse getHistoryByUserId(Long userId) {
         try {
             String url = baseUrl+"/get-by-userId/{userid}";
             WalletHistoryResponse[] walletHistoryResponse = restTemplate.getForObject(url,WalletHistoryResponse[].class,userId);

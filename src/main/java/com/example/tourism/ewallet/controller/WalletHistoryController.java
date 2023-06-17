@@ -28,4 +28,10 @@ public class WalletHistoryController {
     public ResponseEntity<BaseResponse> getHistoryByUserId(@PathVariable("userId") Long userId, Principal principal){
         return ResponseEntity.ok(walletHistoryService.getHistoryByUserId(userId,principal));
     }
+
+    @GetMapping("/admin/get-by-userId/{userId}")
+    @RolesAllowed("admin")
+    public ResponseEntity<BaseResponse> getHistoryByUserId(@PathVariable("userId") Long userId){
+        return ResponseEntity.ok(walletHistoryService.getHistoryByUserId(userId));
+    }
 }
